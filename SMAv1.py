@@ -120,18 +120,21 @@ def sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, 
     return cash
 
 def calculate_open_positions_value(positions, stock_prices):
-    open_positions_value = {} # dict that include open positions and their symbols and values
+    open_positions_value = {}  # dict that includes open positions and their symbols and values
     open_summs = {}
-    total_open_positions_value = 0 # total $ total of open positons
+    total_open_positions_value = 0  # total $ total of open positions
     current_price = 0
     number_of_open_shares = 0
 
     for stock, data in positions.items():
-        number_of_open_shares = sum(data['num_shares'])
-        current_price = stock_prices[stock][-1]
-        open_positions_value[stock] = number_of_open_shares * current_price
-        total_open_positions_value += open_positions_value[stock]
-    
+        if stock in stock_prices:
+            number_of_open_shares = sum(data['num_shares'])
+            stock_price_data = stock_prices[stock]
+            if stock_price_data:
+                current_price = stock_price_data[-1]
+                open_positions_value[stock] = number_of_open_shares * current_price
+                total_open_positions_value += open_positions_value[stock]
+
     open_summs['Total value'] = total_open_positions_value
     open_summs['Current price'] = current_price
     open_summs['# of open shares'] = number_of_open_shares
@@ -154,24 +157,27 @@ def create_trades_dfs(stock, positions, positions_sold, stock_prices, end_date, 
                 'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
             }
             trades_metrics.append(trade)
+
     closed_df = pd.DataFrame(trades_metrics)
     
     open_data = []
-    for stock, data in positions.items():
+    if stock in stock_prices and stock_prices[stock]:
         last_price = stock_prices[stock][-1]
         last_date = end_date[:10]
         trade_num = 0
-        for i in range(len(data['purchase_date'])):
-            purchase_date = data['purchase_date'][i].date()
-            purchase_price = data['purchase_price'][i]
+        for i in range(len(positions[stock]['purchase_date'])):
+            purchase_date = positions[stock]['purchase_date'][i].date()
+            purchase_price = positions[stock]['purchase_price'][i]
             trade_gains = last_price - purchase_price
             percent_gains = (last_price / purchase_price - 1) * 100
             trade_num += 1
             trade_id = f"{trade_set+1}.{trade_num}"
             open_data.append([trade_id, stock, purchase_date, purchase_price, last_date, last_price, trade_gains, percent_gains])
+    
     open_df = pd.DataFrame(open_data, columns=['trade_id', 'stock', 'purchase_date', 'purchase_price', 'last_date', 'last_price', 'trade_gains', 'percent_gains'])
     
     return closed_df, open_df
+
 
 def better_metrics(initial_balance, final_balance, closed_df, open_df, open_summs):
     final_metrics = {}
