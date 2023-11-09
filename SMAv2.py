@@ -273,6 +273,8 @@ def backtest_strategy(stock_list):
                 cash = sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set)
                 sell_dates[stock].append(index)
                 sell_prices[stock].append(row['close'])
+            stock_prices[stock].append(row['close'])
+            sma_values[stock].append(row['sma'])
 
     #plots displayed on site
     fig = plot_graphs(historical_data, buy_dates, buy_prices, sell_dates, sell_prices, start_date, end_date)
@@ -292,3 +294,4 @@ def backtest_strategy(stock_list):
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
     final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, closed_df, open_df, percent_gains_losses, fig, stock_prices, final_metrics = backtest_strategy(stock_list(stocks))
+    print(open_df)
