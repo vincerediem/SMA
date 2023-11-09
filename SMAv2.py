@@ -63,7 +63,7 @@ def buy_condition(row):
     price_difference_percentage = (close - sma) / sma * 100
 
     # Buy when there is less than a 10% difference between close and SMA and the difference is positive
-    return price_difference_percentage >= 0 and price_difference_percentage <= 5
+    return price_difference_percentage >= 0 and price_difference_percentage <= 2
 
 # Modified sell condition for when the price difference is greater than 20%
 def sell_condition(stock, positions, row):
@@ -72,7 +72,7 @@ def sell_condition(stock, positions, row):
     price_difference_percentage = (close - sma) / sma * 100
 
     # Sell when the price difference is greater than 10%
-    return stock in positions and price_difference_percentage > 10
+    return stock in positions and price_difference_percentage > 5
 
 
 def buy_stock(stock, num_shares, row, positions, cash, index):
