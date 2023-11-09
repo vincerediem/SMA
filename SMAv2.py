@@ -57,26 +57,17 @@ def set_timeframe():
     
     return start_date, end_date
 
-#buy condition for when price is just above SMA
 def buy_condition(row):
-    buy = False
-    maxdif_to_buy = .1
+    close = row['close']
+    sma = row['sma']
+    price_difference_percentage = (close - sma) / sma * 100
 
-    if row['close'] > row['sma'] and (row['close'] - row['sma'])/row['sma'] < maxdif_to_buy:
-        buy = True
+    # Buy when there is less than a 10% difference between close and SMA and the difference is positive
+    return price_difference_percentage >= 0 and price_difference_percentage <= 5
 
-    return buy
-
-# Modified sell condition for when SMA value goes below a certain threshold
-# (assuming you want to sell when the price goes below the SMA, you can modify this further based on your needs)
+# Modified sell condition for when the price difference is greater than 20%
 def sell_condition(stock, positions, row):
-    sell = False
-    mindif_to_buy = .2
-
-    if row['close'] > row['sma'] and (row['close'] - row['sma'])/row['sma'] > mindif_to_buy:
-        sell = True
-    
-    return sell
+    return stock in positions and row['close'] < row['sma']
 
 
 def buy_stock(stock, num_shares, row, positions, cash, index):
@@ -275,7 +266,6 @@ def backtest_strategy(stock_list):
                 buy_dates[stock].append(index)
                 buy_prices[stock].append(row['close'])
             
-            # Check for sell condition
             elif sell_condition(stock, positions, row):
                 cash = sell_stock(stock, row, positions, cash, trade_gains_losses, positions_sold, index, percent_gains_losses, trade_set)
                 sell_dates[stock].append(index)
