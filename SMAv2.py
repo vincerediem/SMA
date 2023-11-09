@@ -165,23 +165,21 @@ def create_trades_dfs(stock, positions, positions_sold, stock_prices, end_date, 
                 'percent_gain': positions_sold[stock]['percent_gain'][i] * 100
             }
             trades_metrics.append(trade)
-
     closed_df = pd.DataFrame(trades_metrics)
     
     open_data = []
-    if stock in stock_prices and stock_prices[stock]:
+    for stock, data in positions.items():
         last_price = stock_prices[stock][-1]
         last_date = end_date[:10]
         trade_num = 0
-        for i in range(len(positions[stock]['purchase_date'])):
-            purchase_date = positions[stock]['purchase_date'][i].date()
-            purchase_price = positions[stock]['purchase_price'][i]
+        for i in range(len(data['purchase_date'])):
+            purchase_date = data['purchase_date'][i].date()
+            purchase_price = data['purchase_price'][i]
             trade_gains = last_price - purchase_price
             percent_gains = (last_price / purchase_price - 1) * 100
             trade_num += 1
             trade_id = f"{trade_set+1}.{trade_num}"
             open_data.append([trade_id, stock, purchase_date, purchase_price, last_date, last_price, trade_gains, percent_gains])
-    
     open_df = pd.DataFrame(open_data, columns=['trade_id', 'stock', 'purchase_date', 'purchase_price', 'last_date', 'last_price', 'trade_gains', 'percent_gains'])
     
     return closed_df, open_df
@@ -294,4 +292,3 @@ def backtest_strategy(stock_list):
 if __name__ == '__main__':
     stocks = input("Enter stocks separated by space: ")
     final_balance, initial_balance, stock, positions, trade_gains_losses, positions_sold, closed_df, open_df, percent_gains_losses, fig, stock_prices, final_metrics = backtest_strategy(stock_list(stocks))
-    fig.show()
