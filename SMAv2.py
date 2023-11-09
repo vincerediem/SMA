@@ -67,7 +67,12 @@ def buy_condition(row):
 
 # Modified sell condition for when the price difference is greater than 20%
 def sell_condition(stock, positions, row):
-    return stock in positions and row['close'] < row['sma']
+    close = row['close']
+    sma = row['sma']
+    price_difference_percentage = (close - sma) / sma * 100
+
+    # Sell when the price difference is greater than 10%
+    return stock in positions and price_difference_percentage > 10
 
 
 def buy_stock(stock, num_shares, row, positions, cash, index):
