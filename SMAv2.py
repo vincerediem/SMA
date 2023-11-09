@@ -57,14 +57,26 @@ def set_timeframe():
     
     return start_date, end_date
 
-#buy condition as function
+#buy condition for when price is just above SMA
 def buy_condition(row):
-    return row['close'] > row['sma']
+    buy = False
+    maxdif_to_buy = .1
+
+    if row['close'] > row['sma'] and (row['close'] - row['sma'])/row['sma'] < maxdif_to_buy:
+        buy = True
+
+    return buy
 
 # Modified sell condition for when SMA value goes below a certain threshold
 # (assuming you want to sell when the price goes below the SMA, you can modify this further based on your needs)
 def sell_condition(stock, positions, row):
-    return stock in positions and row['close'] < row['sma']
+    sell = False
+    mindif_to_buy = .2
+
+    if row['close'] > row['sma'] and (row['close'] - row['sma'])/row['sma'] > mindif_to_buy:
+        sell = True
+    
+    return sell
 
 
 def buy_stock(stock, num_shares, row, positions, cash, index):
